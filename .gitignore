@@ -4,6 +4,7 @@ __pycache__/
 
 checkpoints/*
 results/*
+**/.ipynb_checkpoints/
 
 !checkpoints/.gitkeep
 !results/.gitkeep
