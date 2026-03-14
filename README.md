@@ -9,17 +9,16 @@ This repository contains the code developed as part of the master's thesis
 "Group Equivariance in Convolutional Gaussian Processes".
 
 The central question investigated in this work is whether convolutional
-Gaussian processes (CGPs) [van der Wilk et al., 2017] can be extended to broader classes
-of symmetries in order to generalize convolutional structure beyond
+Gaussian processes [van der Wilk et al., 2017] can be extended to broader classes
+of symmetries in order to generalise convolutional structure beyond
 patch translations.
 
-By analyzing the structure of a class of invariant covariance kernels with
+By analysing the structure of a class of invariant covariance kernels with
 sum structure [Ginsbourger et al., 2012] and studying their equivariance
 properties, we obtain a natural extension of convolutional Gaussian processes
 that incorporates discrete rotations and reflections.
 In particular, the models considered here are based on group actions of the
-dihedral group **D₄** and its subgroups, corresponding to the symmetries of a
-square (90° rotations and reflections).
+dihedral group **D₄** and its subgroups.
 
 The resulting models — referred to as *group-convolutional Gaussian
 processes* and *group-invariant convolutional Gaussian processes* —
@@ -29,28 +28,40 @@ The repository further contains scripts for running a set of initial
 proof-of-concept experiments used during the thesis.
 
 
-## Overview of structure
+## Overview of Structure and Contents
 
-- "gconvlib" is the core module containing implementations of kernels, interdomain covariance functions and such as well as a quick fix to GPflow's Softmax likelihood.
-- There are scripts in "datasets" for preprocessing of data.
-- Training and evaluation are separated.
-- The python scripts named "mnist_rot.py" or similarly are used to start training with command-line arguments.
-- Training scripts also contain a patch to multi-output inducing variables that disables shape checking. Without it GPflow does not allow inducing inputs that lie in spaces of different dimensionality as can be the case when latent GPs have different inter-domain inducing variables.
-- Models (including intermediary results during training) are saved in "checkpoints".
-- Running the python scripts with suffix "_eval.py" will load checkpoints, compute scores (e.g. ELBO, negative log predictive probability, classification error) and save them in "results".
-- Evaluation results can be accessed and inspected by loading values, e.g. in a notebook. Example notebooks can be found in directory "results".
+Implementation of kernels, interdomain covariance functions and a few necessary modifications are found in *gconvlib*.
 
+Training and evaluation are separated.
+During training model parameters and the initialisation arguments are stored in *checkpoints*.
+The evaluation scripts load the checkpoints, compute the evidence lower bound, classification error and negative log predictive probability.
+These are saved in *results* from where they can be accessed.
 
+Directory *etc* includes a notebook illustrating how constraints on the weights of a double-sum kernel results in an invariant kernel.
+The construction of group-invariant convolutional GPs follows the same principle.
 
-## Running Code for Experiments
+Implementation focussed on correctness rather than efficiency.
+Thus large parts of the code are far from optimal and leave a lot of room for improvement.
+For example, during training of the rotation-invariant convolutional GP models, GPU utilisation peaked somewhere around fifty percent.
+The experiments should just be seen as a first proof-of-concept.
+Due to time constraints things like reasonable appearing values for learning rate, learning rate decay and decay steps were "guessed".
 
-Everything was implemented in GPflow version 2.9.2.
+## Running Experiments and Setup
 
 Experiments were run on a RTX 4090.
+The GPflow version was 2.9.2.
 
-### Data Preparation
+### Pre-processing Datasets
 
-Copy the dataset into the corresponding "datasets" and run the corresponding scripts.
+Copy the unpacked files of the raw dataset into the corresponding directory in "datasets", e.g. into "datasets/mnist".
+Change into the directory and run the corresponding scripts, e.g. to create the rotated version of MNIST:
+
+```console
+python mnist_rot.py
+```
+
+The processed data is then written to "datasets/mnist/mnist_rot" in npz format.
+The files are named "xtrain.npz", "ytrain.npz", "xtest.npz" and "ytest.npz".
 
 ### Rotated MNIST 0-vs-1
 
@@ -96,6 +107,11 @@ python mnistrot.py --model ConvSE --M 750 --mb_size 100 --checkpoint_interval 50
 python mnistrot.py --model RinvConvandRinv --M 750 --mb_size 50 --checkpoint_interval 5000 --max_steps 350000 --max_time 259200 --lr 0.01 --lr_decay_steps 50000 --lr_decay_factor 0.45 --verbose
 ```
 
+The 6-vs-9 experiment showed that all types of convolutional GPs performed worse than the model with a simple RBF kernel.
+This indicates that the structure of rotated MNIST is generally difficult for GPs with convolutional structure.
+Still, both rotation-invariant convolutional GPs notably outperformed the classical convolutional GP in the 6-vs-9 experiment.
+The structure of rotated MNIST has the effect that the experiment results with the models chosen here are not that insightful.
+Repeating the experiments with the same models as in the previous experiments might be better to compare the difference between the standard convolutional GP model and the rotation-invariant convolutional GP models.
 
 ### CIFAR-10
 
