@@ -3,7 +3,7 @@ __pycache__/
 .DS_Store
 
 checkpoints/*
-results/*
+
 **/.ipynb_checkpoints/
 
 !checkpoints/.gitkeep

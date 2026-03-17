@@ -20,13 +20,12 @@ that incorporates discrete rotations and reflections.
 In particular, the models considered here are based on group actions of the
 dihedral group **D₄** and its subgroups.
 
-The resulting models — referred to as *group-convolutional Gaussian
-processes* and *group-invariant convolutional Gaussian processes* —
+The resulting models, referred to as *group-convolutional Gaussian
+processes* and *group-invariant convolutional Gaussian processes*,
 are implemented using **GPflow**.
 
 The repository further contains scripts for running a set of initial
 proof-of-concept experiments used during the thesis.
-
 
 ## Overview of Structure and Contents
 
@@ -93,9 +92,16 @@ python mnistrot69.py --model RinvConv --M 125 --mb_size 100 --checkpoint_interva
 python mnistrot69.py --model RinvConvp8 --M 125 --mb_size 100 --checkpoint_interval 2000 --max_steps 350000 --max_time 48000 --lr 0.01 --lr_decay_steps 50000 --lr_decay_factor 0.45 --verbose
 ```
 
+These experiments yielded the most notable results.
+The two best performing models in terms of classification error were
+* rotation-invariant GP, 3.0\%
+* GP with RBF kernel, 3.71\%
+All GP models with convolutional structure performed worse but the comparison between the convolutional GP models is notable.
+* standard convolutional GP, 12.15\%
+* rotation-invariant convolutional GP (patch shape 5x5), 8.69\%
+* rotation-invariant convolutional GP (patch shape 8x8), 7.52\%
 
 ### Rotated MNIST full
-
 
 ```console
 python mnistrot.py --model SE --M 750 --mb_size 120 --checkpoint_interval 5000 --max_steps 350000 --max_time 172800 --lr 0.01 --lr_decay_steps 50000 --lr_decay_factor 0.45 --verbose
@@ -109,9 +115,11 @@ python mnistrot.py --model RinvConvandRinv --M 750 --mb_size 50 --checkpoint_int
 
 The 6-vs-9 experiment showed that all types of convolutional GPs performed worse than the model with a simple RBF kernel.
 This indicates that the structure of rotated MNIST is generally difficult for GPs with convolutional structure.
-Still, both rotation-invariant convolutional GPs notably outperformed the classical convolutional GP in the 6-vs-9 experiment.
-The structure of rotated MNIST has the effect that the experiment results with the models chosen here are not that insightful.
-Repeating the experiments with the same models as in the previous experiments might be better to compare the difference between the standard convolutional GP model and the rotation-invariant convolutional GP models.
+Still, both rotation-invariant convolutional GPs notably outperformed the standard convolutional GP.
+Due to the structure of rotated MNIST the experiments with the models chosen here are not that insightful.
+While adding a convolutional component to the universal GP (RBF kernel) improved performance, adding a rotation-invariant convolutional component to the rotation-invariant GP only lead to minor changes in performance.
+This could be because the rotation-invariant convolutional component adds little capacity relative to the rotation-invariant GP.
+Repeating the experiments with the same models as in the previous experiments might be a better choice to compare the differences between the standard convolutional GP model and the rotation-invariant convolutional GP models.
 
 ### CIFAR-10
 
@@ -126,7 +134,6 @@ python cifar10.py --model FlipConvFullWandD4caddAPRD --M 1000 --p_sampling mixed
 
 python cifar10.py --model caddD2ConvFWp6s2andD4caddAPRD --M 1000 --p_sampling mixed --mb_size 32 --checkpoint_interval 10000 --max_steps 500000 --max_time 259200 --lr 0.01 --lr_decay_steps 60000 --lr_decay_factor 0.5 --verbose
 ```
-
 
 ### Example for running experiment evaluations from terminal
 
