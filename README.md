@@ -96,6 +96,7 @@ These experiments yielded the most notable results.
 The two best performing models in terms of classification error were
 * rotation-invariant GP, 3.0\%
 * GP with RBF kernel, 3.71\%
+
 All GP models with convolutional structure performed worse but the comparison between the convolutional GP models is notable.
 * standard convolutional GP, 12.15\%
 * rotation-invariant convolutional GP (patch shape 5x5), 8.69\%
