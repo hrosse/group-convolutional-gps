@@ -179,8 +179,8 @@ def load_data(arg_dict):
     Xtest = np.reshape(Xtest, [Xtest.shape[0], np.prod(Xtest.shape[1:])])
 
     # Masks used to select collection of data
-    mask_train = ((Ytrain == 0) | (Ytrain == 1))
-    mask_test = ((Ytest == 0) | (Ytest == 1))
+    mask_train = ((Ytrain == 9) | (Ytrain == 6))
+    mask_test = ((Ytest == 9) | (Ytest == 6))
 
     # Select collection of data
     Xtrain = Xtrain[mask_train]
@@ -189,8 +189,8 @@ def load_data(arg_dict):
     Ytest = Ytest[mask_test]
 
     # Labels to one-zero-encoding
-    Ytrain = np.array([1 if y == 0 else 0 for y in Ytrain])
-    Ytest = np.array([1 if y == 0 else 0 for y in Ytest])
+    Ytrain = np.array([1 if y == 6 else 0 for y in Ytrain])
+    Ytest = np.array([1 if y == 6 else 0 for y in Ytest])
 
     # Number of remaining points in training data.
     num_data = Ytrain.shape[0]
@@ -216,7 +216,7 @@ def load_data(arg_dict):
 
 def build_model(Xtrain, arg_dict):
     # Block below is used as standard values in experiments.
-    # Values might be replaced in the code blocks where specific models are build. 
+    # Values might be replaced in the code blocks where specific models are build.
     var_init_image = 1.0
     var_init_patch = 1.0
     lscale_init_image = 5.0
@@ -297,38 +297,38 @@ def build_model(Xtrain, arg_dict):
     # Patch weights in FullConvolutional and GConvolutionalFullWeights
     max_abs_w_patch = lambda: affine_scalar_bijector(shift=ftype(-25.0), scale=ftype(50.0))(
         tfp.bijectors.Sigmoid()
-    ) 
+    )
     # Group element weights in GKernel
     max_abs_w_imtransform = lambda: affine_scalar_bijector(shift=ftype(-15.0), scale=ftype(30.0))(
         tfp.bijectors.Sigmoid()
-    ) 
-    ### In GConvolutional kernel the "patch weights" are given by the product of "location weights" and "transformation weights" 
+    )
+    ### In GConvolutional kernel the "patch weights" are given by the product of "location weights" and "transformation weights"
     # Patch location weights in GConvolutional
     max_abs_w_patchlocation = lambda: affine_scalar_bijector(shift=ftype(-7.0), scale=ftype(14.0))(
         tfp.bijectors.Sigmoid()
-    ) 
+    )
     # Group element weights in GConvolutional
     max_abs_w_patchtransform = lambda: affine_scalar_bijector(shift=ftype(-3.0), scale=ftype(6.0))(
         tfp.bijectors.Sigmoid()
-    ) 
+    )
     # Upper/lower bound on variance of kernel. When there are no additional weights as in GKernel or variants of GConvKernel
     var_constrained = lambda: affine_scalar_bijector(shift=ftype(1e-4), scale=ftype(80.0))(
         tfp.bijectors.Sigmoid()
-    ) 
-    # Upper/lower bound on variance of base kernel, "basis function weights" are effectively the product of variance and weights 
+    )
+    # Upper/lower bound on variance of base kernel, "basis function weights" are effectively the product of variance and weights
     var_base_constrained = lambda: affine_scalar_bijector(shift=ftype(1e-4), scale=ftype(40.0))(
         tfp.bijectors.Sigmoid()
-    ) 
+    )
     # For SE, ACRD or APRD (base) kernels, i.e. when there is no combination of APRD and ACRD
     ls_constrained = lambda: affine_scalar_bijector(shift=ftype(1e-4), scale=ftype(81.0))(
         tfp.bijectors.Sigmoid()
-    ) 
-    # For kernels that combine APRD and ACRD. 
+    )
+    # For kernels that combine APRD and ACRD.
     # Inputs are scaled in succession by patch location weights and colour channel weights (i.e. the product).
     # Upper bound effectively is squared scale.
     ls_cadd_aprd_constrained = lambda: affine_scalar_bijector(shift=ftype(1e-4), scale=ftype(10.0))(
         tfp.bijectors.Sigmoid()
-    ) 
+    )
 
 
 
@@ -475,7 +475,7 @@ def build_model(Xtrain, arg_dict):
 
 
     # Not used in final experiments.
-    # Observation after a quick test run: 
+    # Observation after a quick test run:
     # Plot of weights appeared to show some symmetry with respect to rotations.
     elif arg_dict["model"] == "RinvPatchConv":
         arg_dict["num_latent"] = 1
@@ -504,7 +504,7 @@ def build_model(Xtrain, arg_dict):
         )
         Z = sample_inducing_patches(Xtrain, arg_dict, kernel)
         model = initialise_SVGP_model(kernel, likelihood, Z, arg_dict)
-        
+
     return model, arg_dict
 
 
@@ -536,7 +536,7 @@ def has_bad_params(model):
 
 
 def train_and_save(model, data, arg_dict):
-    
+
     # Iterator over minibatches
     train_dataset = tf.data.Dataset.from_tensor_slices(data).repeat().shuffle(model.num_data)
     train_iter = iter(train_dataset.batch(arg_dict["mb_size"]))
